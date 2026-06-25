@@ -1,0 +1,15 @@
+Levantar contenedor 
+docker compose up --build -d 
+
+Apagar contenedor 
+docker compose down
+
+Saber los log del modelo
+docker compose logs -f agent_api
+
+Levantar ngrok
+ngrok http 8000
+
+Dar de alta el webook usando la ruta de ngrok
+https://api.telegram.org/bot8872446849:AAFSJ4hfZ5ZN9nDhNXWAd09tkh8KS1VSm_o/setWebhook?url=RUTA_DE_NGROK/webhook
+
