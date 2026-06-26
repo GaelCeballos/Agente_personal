@@ -89,15 +89,19 @@ async def procesar_logica_ia(chat_id: int, texto_usuario: str):
             tipo = "tarea"
             progreso = int(match_porcentaje.group(1))
 
+        if not descripcion:
+            descripcion = texto_usuario
+
         respuesta = ""
 
-        if intencion == "sistema" or intencion == "consultar":
+        if operacion == "historial" or intencion == "sistema" or intencion == "consultar":
             if operacion == "historial":
                 contexto_db = db.obtener_historial(str(chat_id), periodo)
             elif intencion == "sistema":
                 contexto_db = "El usuario te está saludando o haciendo una interacción social casual. Responde cordialmente."
             else:
                 contexto_db = db.obtener_resumen_completo(str(chat_id))
+            
             respuesta = ai.responder_consulta(texto_usuario, contexto_db, nombre)
         
         else:
@@ -123,15 +127,19 @@ async def procesar_logica_ia(chat_id: int, texto_usuario: str):
                     except: f_rec_parsed = None
 
                 resultado, desc_final, prog_final, _ = db.registrar_o_actualizar(
-                    str(chat_id), tipo, operacion, descripcion, importancia, progreso, f_rec_parsed, minutes_aviso=minutos_aviso
+                    str(chat_id), tipo, operacion, descripcion, importancia, progreso, f_rec_parsed, minutos_aviso=minutos_aviso
                 )
                 
-                if tipo == "recordatorio": respuesta = f"⏰ <b>[RECORDATORIO]</b>: <i>{desc_final}</i>"
+                if tipo == "recordatorio": 
+                    respuesta = f"⏰ <b>[RECORDATORIO]</b>: <i>{desc_final}</i>"
                 elif tipo == "tarea":
                     barra = barra_progreso(prog_final)
-                    if prog_final == 100: respuesta = f"✅ <b>[TAREA]</b> ¡Al 100%! Movida al historial: <i>{desc_final}</i>"
-                    else: respuesta = f"✅ <b>[TAREA]</b> Guardada/Vigente:\\n  <i>{desc_final}</i>\\n  <code>[{barra}] {prog_final}%</code>"
-                else: respuesta = f"📓 <b>[NOTA]</b> Guardada: <i>{desc_final}</i>"
+                    if prog_final == 100: 
+                        respuesta = f"✅ <b>[TAREA]</b> ¡Al 100%! Movida al historial: <i>{desc_final}</i>"
+                    else: 
+                        respuesta = f"✅ <b>[TAREA]</b> Guardada/Vigente:\n  <i>{desc_final}</i>\n  <code>[{barra}] {prog_final}%</code>"
+                else: 
+                    respuesta = f"📓 <b>[NOTA]</b> Guardada: <i>{desc_final}</i>"
 
         enviar_telegram(chat_id, respuesta)
     except Exception as e: print(f"❌ Error en lógica IA: {e}")
